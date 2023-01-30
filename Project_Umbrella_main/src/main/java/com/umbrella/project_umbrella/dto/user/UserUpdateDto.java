@@ -2,6 +2,7 @@ package com.umbrella.project_umbrella.dto.user;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.umbrella.project_umbrella.domain.User.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -21,6 +22,7 @@ public class UserUpdateDto {
     private String mName;
     @NotNull(message = "나이는 필수 입력 값입니다.")
     private Integer age;
+
     @Builder
     public UserUpdateDto(String email, String nickName, String mName, Integer age) {
         this.email = email;
@@ -29,4 +31,7 @@ public class UserUpdateDto {
         this.age = age;
     }
 
+
 }
+
+

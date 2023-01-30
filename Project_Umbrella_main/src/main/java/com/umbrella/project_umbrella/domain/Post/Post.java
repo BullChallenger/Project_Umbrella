@@ -27,19 +27,18 @@ public class Post {
 
     private String writer;
 
-    @ManyToOne( fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @OneToMany(mappedBy = "posts" , fetch = FetchType.EAGER , cascade = CascadeType.REMOVE)
-    private List<Comment> comments;
+    @OneToMany(mappedBy = "post" , fetch = FetchType.EAGER , cascade = CascadeType.REMOVE)
+    private List<Comment> comment;
 
 
     @Builder
-    public Post(String title, String writer, String content){
-        this.title = title;
+    public Post(String writer, String title,  String content){
         this.writer = writer;
         this.content = content;
+        this.title = title;
     }
 
     public void update(String title, String content){
