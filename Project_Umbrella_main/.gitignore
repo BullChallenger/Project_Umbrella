@@ -1,0 +1,11 @@
+# Default ignored files
+/shelf/
+/.idea/workspace.xml
+*.yml
+.idea
+*.iws
+*.iml
+*.ipr
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar

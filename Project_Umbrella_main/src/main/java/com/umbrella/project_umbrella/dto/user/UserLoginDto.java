@@ -4,6 +4,9 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.util.Assert;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+
 @Getter
 public class UserLoginDto {
 
