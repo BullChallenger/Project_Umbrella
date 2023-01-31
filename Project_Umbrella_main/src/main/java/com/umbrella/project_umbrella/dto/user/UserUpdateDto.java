@@ -12,18 +12,16 @@ import javax.validation.constraints.NotNull;
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserUpdateDto {
-
-    @Email
-    @NotBlank(message = "이메일은 필수 입력 값입니다.")
-    private String email;
+    @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
+    private String password;
     private String nickName;
     @NotBlank(message = "실명은 필수 입력 값입니다.")
     private String mName;
     @NotNull(message = "나이는 필수 입력 값입니다.")
     private Integer age;
     @Builder
-    public UserUpdateDto(String email, String nickName, String mName, Integer age) {
-        this.email = email;
+    public UserUpdateDto(String password, String nickName, String mName, Integer age) {
+        this.password = password;
         this.nickName = nickName;
         this.mName = mName;
         this.age = age;

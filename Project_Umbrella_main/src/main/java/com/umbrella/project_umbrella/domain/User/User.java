@@ -38,6 +38,7 @@ public class User {
         private Role role;
 
         @Column(length = 100)
+        @Lob
         private String refreshToken;
 
         @Builder
@@ -69,8 +70,8 @@ public class User {
             commentList.add(comment);
         }
 
-        public void updateMember (UserUpdateDto userUpdateDto) {
-            this.email = userUpdateDto.getEmail();
+        public void updateUser(UserUpdateDto userUpdateDto) {
+            this.password = userUpdateDto.getPassword();
             this.nickName = userUpdateDto.getNickName();
             this.mName = userUpdateDto.getMName();
             this.age = userUpdateDto.getAge();
