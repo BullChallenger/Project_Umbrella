@@ -8,8 +8,8 @@ import java.util.Optional;
 
 public interface JwtService {
 
-    String createAccessToken(String email, String alphaKey);
-    String createRefreshToken(String email, String alphaKey);
+    String createAccessToken(String email);
+    String createRefreshToken(String email);
 
     void updateRefreshToken(String email, String refreshToken);
 
@@ -23,12 +23,12 @@ public interface JwtService {
 
     Optional<String> extractRefreshToken(HttpServletRequest request) throws IOException, ServletException;
 
-    Optional<String> extractEmail(String accessToken, String alphaKey);
+    Optional<String> extractEmail(String accessToken);
 
-    Optional<String> extractSubject(String accessToken, String alphaKey);
+    Optional<String> extractSubject(String accessToken);
 
     void setAccessTokenHeader(HttpServletResponse response, String accessToken);
     void setRefreshTokenHeader(HttpServletResponse response, String refreshToken);
 
-    boolean isTokenValid(String alphaKey, String token);
+    boolean isTokenValid(String token);
 }

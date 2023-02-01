@@ -26,8 +26,8 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
                                         Authentication authentication) throws IOException, ServletException {
         String email = extractEmail(authentication);
         String alphaKey = extractPassword(authentication);
-        String accessToken = jwtService.createAccessToken(email, alphaKey);
-        String refreshToken = jwtService.createRefreshToken(email, alphaKey);
+        String accessToken = jwtService.createAccessToken(email);
+        String refreshToken = jwtService.createRefreshToken(email);
 
         jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
 

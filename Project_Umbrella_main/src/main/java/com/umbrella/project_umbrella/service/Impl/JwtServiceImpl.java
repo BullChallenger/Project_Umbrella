@@ -5,6 +5,8 @@ import com.umbrella.project_umbrella.repository.UserRepository;
 import com.umbrella.project_umbrella.service.JwtService;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -26,14 +28,18 @@ import java.util.*;
 @Transactional
 @Service
 @Setter(AccessLevel.PRIVATE)
-@RequiredArgsConstructor
 @Slf4j
 public class JwtServiceImpl implements JwtService {
 
     private final UserRepository userRepository;
 
-    @Value("${jwt.secret}")
-    private String secret;
+    private final Key secretKey;
+
+    public JwtServiceImpl(UserRepository userRepository, @Value("${jwt.secret}") String secret) {
+        this.userRepository = userRepository;
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     @Value("${jwt.access.expiration}")
     private long accessTokenExpiration;
@@ -53,13 +59,9 @@ public class JwtServiceImpl implements JwtService {
     private static final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
 
     @Override
-    public String createAccessToken(String email, String alphaKey) {
-        String secretKey = createSecretKey(alphaKey);
-
-        Key signingKey = createSigningKey(secretKey, SIGNATURE_ALGORITHM);
-
+    public String createAccessToken(String email) {
         return Jwts.builder()
-                .signWith(signingKey, SIGNATURE_ALGORITHM)
+                .signWith(secretKey, SIGNATURE_ALGORITHM)
                 .setSubject(email)
                 .setIssuer(ISSUER)
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration * 1000))
@@ -68,13 +70,10 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String createRefreshToken(String email, String alphaKey) {
-        String secretKey = createSecretKey(alphaKey);
-
-        Key signingKey = createSigningKey(secretKey, SIGNATURE_ALGORITHM);
+    public String createRefreshToken(String email) {
 
         return Jwts.builder()
-                .signWith(signingKey, SIGNATURE_ALGORITHM)
+                .signWith(secretKey, SIGNATURE_ALGORITHM)
                 .setSubject(email)
                 .setIssuer(ISSUER)
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration * 1000))
@@ -124,13 +123,14 @@ public class JwtServiceImpl implements JwtService {
     public Optional<String>  extractRefreshToken(HttpServletRequest request) throws IOException, ServletException {
         return Optional.ofNullable(request.getHeader(refreshHeader))
                 .filter(refreshToken -> refreshToken.startsWith(BEARER))
-                .map(refreshToken -> refreshToken.replace(BEARER, ""));    }
+                .map(refreshToken -> refreshToken.replace(BEARER, ""));
+    }
 
     @Override
-    public Optional<String> extractEmail(String token, String alphaKey) {
+    public Optional<String> extractEmail(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(DatatypeConverter.parseBase64Binary(createSecretKey(alphaKey)))
+                    .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
@@ -143,10 +143,10 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public Optional<String> extractSubject(String token, String alphaKey) {
+    public Optional<String> extractSubject(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(DatatypeConverter.parseBase64Binary(createSecretKey(alphaKey)))
+                    .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
@@ -169,37 +169,21 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-        public boolean isTokenValid(String alphaKey, String token) {
+        public boolean isTokenValid(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(createSigningKey(createSecretKey(alphaKey), SIGNATURE_ALGORITHM))
+            Jwts.parserBuilder().setSigningKey(secretKey)
                     .build().parseClaimsJws(token);
 
             return true;
         } catch (ExpiredJwtException e) {
-            log.error("만료된 토큰입니다.");
+            log.error("만료된 토큰입니다.", e);
 
-            throw e;
+            return false;
         } catch (Exception e) {
-            log.error("유효하지 않은 토큰입니다.");
-            throw new JwtException("유효하지 않은 토큰입니다.");
+            log.error("유효하지 않은 토큰입니다.", e);
+
+            return false;
         }
     }
 
-    private String createSecretKey(String alphaKey) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(secret).append(alphaKey);
-
-        String secretKey = new String(sb);
-
-        return secretKey;
-    }
-
-    private Key createSigningKey(String secretKey, SignatureAlgorithm signatureAlgorithm) {
-
-        byte[] secretKeyBytes = DatatypeConverter.parseBase64Binary(secretKey);
-
-        Key signingKey = new SecretKeySpec(secretKeyBytes, signatureAlgorithm.getJcaName());
-
-        return signingKey;
-    }
 }
