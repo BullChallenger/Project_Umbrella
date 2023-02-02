@@ -41,7 +41,14 @@ public class JsonEmailPasswordAuthenticationFilter extends AbstractAuthenticatio
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException,
-                                                                                        IOException, ServletException {
+                                                                                        IOException, ServletException
+    {
+        log.info("JsonEmailPasswordAuthenticationFilter HttpServletRequest requestMethod = {}", request.getMethod());
+        log.info("JsonEmailPasswordAuthenticationFilter HttpServletRequest requestContentType = {}", request.getContentType());
+
+        log.info("JsonEmailPasswordAuthenticationFilter HttpServletRequest request = {}", request);
+        log.info("JsonEmailPasswordAuthenticationFilter HttpServletResponse response = {}", response);
+
         if (!request.getMethod().equals(HTTP_METHOD)) {
             log.error("POST 요청이 아닙니다.");
             throw new AuthenticationServiceException("Authentication method not supported : " + request.getMethod());

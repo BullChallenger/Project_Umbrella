@@ -1,5 +1,6 @@
 package com.umbrella.project_umbrella.security.login.handler;
 
+import com.umbrella.project_umbrella.domain.User.User;
 import com.umbrella.project_umbrella.repository.UserRepository;
 import com.umbrella.project_umbrella.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,9 +27,8 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
         String email = extractEmail(authentication);
-        String alphaKey = extractPassword(authentication);
         String accessToken = jwtService.createAccessToken(email);
         String refreshToken = jwtService.createRefreshToken(email);
 
@@ -44,12 +47,6 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         return userDetails.getUsername();
-    }
-
-    private String extractPassword(Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-        return userDetails.getPassword();
     }
 }
 

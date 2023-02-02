@@ -67,7 +67,7 @@ public class JwtAuthenticationProcessingFilterTest {
     private static final String URL_ADDRESS = "/url/address";
 
     private String email = "test@test.com";
-    private String password = "codePirates0201";
+    private String password = "codePirates0202";
 
     @BeforeEach
     private void init() {
@@ -265,8 +265,8 @@ public class JwtAuthenticationProcessingFilterTest {
     public void sendNonValidAccessTokenAndNonValidRefreshTokenTest() throws Exception {
         //given
         Map accessAndRefreshToken = getAccessAndRefreshToken();
-        String accessToken= (String) accessAndRefreshToken.get(accessHeader);
-        String refreshToken= (String) accessAndRefreshToken.get(refreshHeader);
+        String accessToken = (String) accessAndRefreshToken.get(accessHeader);
+        String refreshToken = (String) accessAndRefreshToken.get(refreshHeader);
 
         //when, then
         MvcResult result = mockMvc.perform(get(URL_ADDRESS)
@@ -286,16 +286,13 @@ public class JwtAuthenticationProcessingFilterTest {
     @DisplayName("[SUCCESS]_로그인_페이지는_토큰_없이_통과")
     public void loginUrlNonPassTest() throws Exception {
         //given
-        Map accessAndRefreshToken = getAccessAndRefreshToken();
-        String accessToken= (String) accessAndRefreshToken.get(accessHeader);
-        String refreshToken= (String) accessAndRefreshToken.get(refreshHeader);
+        Map<String, String> map = getUsernamePasswordMap(email, password);
 
         //when, then
         MvcResult result = mockMvc.perform(post(LOGIN_URL)
-                            .header(refreshHeader, BEARER + refreshToken)
-                            .header(accessHeader, BEARER + accessToken)
-                        )
-                        .andExpect(status().isBadRequest())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(map)))
+                        .andExpect(status().isOk())
                         .andReturn();
     }
 }

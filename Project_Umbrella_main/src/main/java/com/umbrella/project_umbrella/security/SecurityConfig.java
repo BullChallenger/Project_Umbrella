@@ -22,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
+import javax.persistence.EntityManager;
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
