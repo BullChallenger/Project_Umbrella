@@ -19,74 +19,91 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
-        @Id
-        @Column
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        private Long id;
-        @Column(nullable = false, unique = true)
-        private String email;
-        @Column(nullable = false)
-        private String nickName;
-        @Column(nullable = false)
-        private String password;
-        @Column(nullable = false)
-        private String mName;
-        @Column(nullable = false)
-        private int age;
-        @Column
-        @Enumerated(EnumType.STRING)
-        private Role role;
+    @Id
+    @Column
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    @Column(nullable = false, unique = true)
+    private String email;
+    @Column(nullable = false, unique = true)
+    private String nickName;
+    @Column(nullable = false)
+    private String password;
+    @Column(nullable = false)
+    private String mName;
+    @Column(nullable = false)
+    private int age;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-        @Column(length = 100)
-        @Lob
-        private String refreshToken;
+    @Column(length = 100)
+    @Lob
+    private String refreshToken;
 
-        @Builder
-        public User(String email, String nickName, String password, String mName, Integer age, Role role) {
-            Assert.hasText(email, "email must not be blank");
-            Assert.hasText(nickName, "nickName must not be blank");
-            Assert.hasText(password, "password must not be blank");
-            Assert.hasText(mName, "mName must not be blank");
-            Assert.notNull(age, "age must not be null");
-            Assert.notNull(role, "role must not be null");
+    @Builder
+    public User(String email, String nickName, String password, String mName, Integer age, Role role) {
+        Assert.hasText(email, "email must not be blank");
+        Assert.hasText(nickName, "nickName must not be blank");
+        Assert.hasText(password, "password must not be blank");
+        Assert.hasText(mName, "mName must not be blank");
+        Assert.notNull(age, "age must not be null");
 
-            this.email = email;
-            this.nickName = nickName;
-            this.password = password;
-            this.mName = mName;
-            this.age = age;
-            this.role = role;
-        }
+        this.email = email;
+        this.nickName = nickName;
+        this.password = password;
+        this.mName = mName;
+        this.age = age;
+        this.role = role;
+    }
 
-        @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<Post> postList = new ArrayList<>();
-        @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<Comment> commentList = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> postList = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> commentList = new ArrayList<>();
 
-        public void addPost(Post post) {
-            postList.add(post);
-        }
-        public void addComment(Comment comment) {
-            commentList.add(comment);
-        }
+    public void addPost(Post post) {
+        postList.add(post);
+    }
+    public void addComment(Comment comment) {
+        commentList.add(comment);
+    }
 
-        public void updateUser(UserUpdateDto userUpdateDto) {
-            this.password = userUpdateDto.getPassword();
-            this.nickName = userUpdateDto.getNickName();
-            this.mName = userUpdateDto.getMName();
-            this.age = userUpdateDto.getAge();
-        }
+    public void updateUser(UserUpdateDto userUpdateDto) {
+        userUpdateDto.getNickName().ifPresent(
+                nickName -> this.nickName = nickName
+        );
 
-        public void updateRefreshToken(String refreshToken) {
-            this.refreshToken = refreshToken;
-        }
+        userUpdateDto.getMName().ifPresent(
+                mName -> this.mName = mName
+        );
 
-        public void destroyRefreshToken() {
-            this.refreshToken = null;
-        }
+        userUpdateDto.getAge().ifPresent(
+                age -> this.age = age
+        );
+    }
 
-        public void encodePassword(PasswordEncoder passwordEncoder) {
-            this.password = passwordEncoder.encode(password);
-        }
+    public void updatePassword(PasswordEncoder passwordEncoder, String password) {
+        this.password = passwordEncoder.encode(password);
+    }
 
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public void destroyRefreshToken() {
+        this.refreshToken = null;
+    }
+
+    public void encodePassword(PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(password);
+    }
+
+    public boolean matchPassword(PasswordEncoder passwordEncoder, String checkPassword) {
+        return passwordEncoder.matches(checkPassword, getPassword());
+    }
+
+    public void addUserAuthorities() {
+        this.role = Role.USER;
+    }
 }

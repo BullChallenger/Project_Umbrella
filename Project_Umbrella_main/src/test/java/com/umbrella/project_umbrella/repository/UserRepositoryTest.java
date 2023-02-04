@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -180,18 +182,18 @@ public class UserRepositoryTest {
         em.flush();
         em.clear();
 
-        String updatePassword = "updatePassword";
-        String updateName = "updateName";
-        String updateNickName = "updateNickName";
-        int updateAge = 23;
+        Optional<String> opUpdatePassword = Optional.of("updatePassword");
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        Optional<String> opUpdateName = Optional.of("updateName");
+
+        Optional<String> opUpdateNickName = Optional.of("updateNickName");
+
+        Optional<Integer> opUpdateAge = Optional.of(23);
 
         UserUpdateDto userUpdateDto = UserUpdateDto.builder()
-                .password(updatePassword)
-                .nickName(updateNickName)
-                .mName(updateName)
-                .age(updateAge)
+                .nickName(opUpdateName)
+                .mName(opUpdateNickName)
+                .age(opUpdateAge)
                 .build();
 
         User updateUser = userRepository.findByEmail(user.getEmail()).orElseThrow(EntityNotFoundException::new);
@@ -204,10 +206,9 @@ public class UserRepositoryTest {
         User findUpdatedUser = userRepository.findByEmail(updateUser.getEmail()).
                 orElseThrow(EntityNotFoundException::new);
 
-        assertThat(findUpdatedUser.getPassword()).isEqualTo(userUpdateDto.getPassword());
-        assertThat(findUpdatedUser.getNickName()).isEqualTo(userUpdateDto.getNickName());
-        assertThat(findUpdatedUser.getMName()).isEqualTo(userUpdateDto.getMName());
-        assertThat(findUpdatedUser.getAge()).isEqualTo(userUpdateDto.getAge());
+        assertThat(findUpdatedUser.getNickName()).isEqualTo(userUpdateDto.getNickName().get());
+        assertThat(findUpdatedUser.getMName()).isEqualTo(userUpdateDto.getMName().get());
+        assertThat(findUpdatedUser.getAge()).isEqualTo(userUpdateDto.getAge().get());
     }
 
     @Test

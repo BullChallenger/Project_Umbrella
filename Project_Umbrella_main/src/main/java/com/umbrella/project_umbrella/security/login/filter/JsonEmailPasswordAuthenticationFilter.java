@@ -43,11 +43,11 @@ public class JsonEmailPasswordAuthenticationFilter extends AbstractAuthenticatio
                                                 HttpServletResponse response) throws AuthenticationException,
                                                                                         IOException, ServletException
     {
-        log.info("JsonEmailPasswordAuthenticationFilter HttpServletRequest requestMethod = {}", request.getMethod());
-        log.info("JsonEmailPasswordAuthenticationFilter HttpServletRequest requestContentType = {}", request.getContentType());
-
-        log.info("JsonEmailPasswordAuthenticationFilter HttpServletRequest request = {}", request);
-        log.info("JsonEmailPasswordAuthenticationFilter HttpServletResponse response = {}", response);
+//        log.info("JsonEmailPasswordAuthenticationFilter HttpServletRequest requestMethod = {}", request.getMethod());
+//        log.info("JsonEmailPasswordAuthenticationFilter HttpServletRequest requestContentType = {}", request.getContentType());
+//
+//        log.info("JsonEmailPasswordAuthenticationFilter HttpServletRequest request = {}", request);
+//        log.info("JsonEmailPasswordAuthenticationFilter HttpServletResponse response = {}", response);
 
         if (!request.getMethod().equals(HTTP_METHOD)) {
             log.error("POST 요청이 아닙니다.");
@@ -65,8 +65,8 @@ public class JsonEmailPasswordAuthenticationFilter extends AbstractAuthenticatio
         String email = userLoginDto.getEmail();
         String password = userLoginDto.getPassword();
 
-        log.info("attemptAuthentication email  = {}", email);
-        log.info("attemptAuthentication password = {}", password);
+//        log.info("attemptAuthentication email  = {}", email);
+//        log.info("attemptAuthentication password = {}", password);
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, password);
 

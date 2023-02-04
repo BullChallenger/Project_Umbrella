@@ -10,10 +10,10 @@ import javax.validation.constraints.NotBlank;
 @Getter
 public class UserLoginDto {
 
-    @NotBlank
+    @NotBlank(message = "이메일은 필수 입력 값입니다.")
     @Email
     private final String email;
-    @NotBlank
+    @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
     private final String password;
 
     @Builder

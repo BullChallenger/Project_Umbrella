@@ -5,6 +5,7 @@ import com.umbrella.project_umbrella.repository.UserRepository;
 import com.umbrella.project_umbrella.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -24,10 +25,12 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
+    private final String APPLICATION_JSON = "application/json";
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException {
+                                        Authentication authentication) throws IOException, ServletException {
         String email = extractEmail(authentication);
         String accessToken = jwtService.createAccessToken(email);
         String refreshToken = jwtService.createRefreshToken(email);
@@ -37,6 +40,10 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
         userRepository.findByEmail(email).ifPresent(
                 user -> user.updateRefreshToken(refreshToken)
         );
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType(APPLICATION_JSON);
+        response.getWriter().write("성공적으로 로그인이 완료되었습니다!");
 
         log.info( "로그인에 성공합니다. email: {}", email);
         log.info( "AccessToken 을 발급합니다. AccessToken: {}", accessToken);

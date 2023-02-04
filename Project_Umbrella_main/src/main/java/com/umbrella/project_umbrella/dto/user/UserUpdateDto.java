@@ -8,20 +8,22 @@ import lombok.Getter;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserUpdateDto {
-    @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
-    private String password;
-    private String nickName;
+    @NotBlank(message = "닉네임은 필수 입력 값입니다.")
+    private Optional<String> nickName;
     @NotBlank(message = "실명은 필수 입력 값입니다.")
-    private String mName;
+    private Optional<String> mName;
     @NotNull(message = "나이는 필수 입력 값입니다.")
-    private Integer age;
+    private Optional<Integer> age;
+
     @Builder
-    public UserUpdateDto(String password, String nickName, String mName, Integer age) {
-        this.password = password;
+    public UserUpdateDto(Optional<String> nickName,
+                         Optional<String> mName,
+                         Optional<Integer> age) {
         this.nickName = nickName;
         this.mName = mName;
         this.age = age;

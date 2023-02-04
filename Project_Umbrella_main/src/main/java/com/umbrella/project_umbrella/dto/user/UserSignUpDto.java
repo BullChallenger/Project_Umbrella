@@ -17,6 +17,7 @@ public class UserSignUpDto {
     @Email
     @NotBlank(message = "이메일은 필수 입력 값입니다.")
     private final String email;
+    @NotBlank(message = "닉네임은 필수 입력 값입니다.")
     private final String nickName;
     @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
     private final String password;
@@ -27,6 +28,7 @@ public class UserSignUpDto {
     @Builder
     public UserSignUpDto(String email, String nickName, String password, String mName, Integer age) {
         Assert.hasText(email, "email must not be blank");
+        Assert.hasText(nickName, "nickName must not be blank");
         Assert.hasText(password, "password must not be blank");
         Assert.hasText(mName, "mName must not be blank");
         Assert.notNull(age, "age must not be null");
