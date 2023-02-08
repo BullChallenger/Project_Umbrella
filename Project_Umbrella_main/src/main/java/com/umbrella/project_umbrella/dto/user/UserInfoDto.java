@@ -12,7 +12,7 @@ public class UserInfoDto {
 
     private final String email;
 
-    private final String mName;
+    private final String name;
 
     private final String nickName;
 
@@ -21,7 +21,7 @@ public class UserInfoDto {
     @Builder
     public UserInfoDto(User findUser) {
         this.email = findUser.getEmail();
-        this.mName = findUser.getMName();
+        this.name = findUser.getName();
         this.nickName = findUser.getNickName();
         this.age = findUser.getAge();
     }

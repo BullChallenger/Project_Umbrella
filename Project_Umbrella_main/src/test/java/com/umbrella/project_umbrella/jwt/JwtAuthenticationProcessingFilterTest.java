@@ -75,7 +75,7 @@ public class JwtAuthenticationProcessingFilterTest {
                 User.builder()
                         .email(email)
                         .password(delegatingPasswordEncoder.encode(password))
-                        .mName("홍길동")
+                        .name("홍길동")
                         .nickName("테스트 계정입니다.")
                         .role(Role.USER)
                         .age(22)

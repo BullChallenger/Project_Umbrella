@@ -2,6 +2,7 @@ package com.umbrella.project_umbrella.security.login.filter;
 
 import com.umbrella.project_umbrella.domain.User.User;
 import com.umbrella.project_umbrella.repository.UserRepository;
+import com.umbrella.project_umbrella.security.userDetails.UserContext;
 import com.umbrella.project_umbrella.service.JwtService;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContext;
@@ -17,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.persistence.EntityNotFoundException;
@@ -25,6 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -86,11 +92,15 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     }
 
     private void saveAuthentication(User user) {
-        UserDetails authenticatedUser = org.springframework.security.core.userdetails.User.builder()
-                .username(user.getNickName())
-                .password(user.getPassword())
-                .roles(user.getRole().name())
-                .build();
+
+        String role = user.getRole().name();
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        Assert.isTrue(!role.startsWith("ROLE_"),
+                () -> role + " cannot start with ROLE_ (it is automatically added)");
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+
+        UserContext authenticatedUser = new UserContext(user, authorities);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(authenticatedUser, null,
                 authoritiesMapper.mapAuthorities(authenticatedUser.getAuthorities()));

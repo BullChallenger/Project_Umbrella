@@ -6,23 +6,32 @@ import com.umbrella.project_umbrella.dto.user.UserInfoDto;
 import com.umbrella.project_umbrella.dto.user.UserSignUpDto;
 import com.umbrella.project_umbrella.dto.user.UserUpdateDto;
 import com.umbrella.project_umbrella.repository.UserRepository;
-import com.umbrella.project_umbrella.security.login.utils.SecurityUtil;
+import com.umbrella.project_umbrella.security.userDetails.UserContext;
+import com.umbrella.project_umbrella.security.utils.SecurityUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 
-import java.lang.annotation.Documented;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -44,6 +53,11 @@ public class UserServiceTest {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    SecurityUtil securityUtil;
+
+    private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+
     String password = "codePirates0204";
 
     private UserSignUpDto createUserSignUpDto() {
@@ -57,16 +71,41 @@ public class UserServiceTest {
         em.flush();
         em.clear();
 
+        User user = User.builder()
+                .email(userSignUpDto.getEmail())
+                .password(userSignUpDto.getPassword())
+                .nickName(userSignUpDto.getNickName())
+                .name(userSignUpDto.getName())
+                .age(userSignUpDto.getAge())
+                .role(Role.USER)
+                .build();
+
+        String role = user.getRole().name();
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        Assert.isTrue(!role.startsWith("ROLE_"),
+                () -> role + " cannot start with ROLE_ (it is automatically added)");
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+
+        UserDetails authenticatedUser = new UserContext(user, authorities);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(authenticatedUser, null,
+                authoritiesMapper.mapAuthorities(authenticatedUser.getAuthorities()));
+
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-
-        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(
-                org.springframework.security.core.userdetails.User.builder()
-                                                                    .username(userSignUpDto.getNickName())
-                                                                    .password(userSignUpDto.getPassword())
-                                                                    .roles(Role.USER.name())
-                .build(), null, null));
-
+        securityContext.setAuthentication(authentication);
         SecurityContextHolder.setContext(securityContext);
+
+//        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+//
+//        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(
+//                org.springframework.security.core.userdetails.User.builder()
+//                                                                    .username(userSignUpDto.getNickName())
+//                                                                    .password(userSignUpDto.getPassword())
+//                                                                    .roles(Role.USER.name())
+//                .build(), null, null));
+//
+//        SecurityContextHolder.setContext(securityContext);
 
         return userSignUpDto;
     }
@@ -95,7 +134,7 @@ public class UserServiceTest {
         assertThat(savedUser.getId()).isNotNull();
         assertThat(savedUser.getEmail()).isEqualTo(userSignUpDto.getEmail());
         assertThat(savedUser.getNickName()).isEqualTo(userSignUpDto.getNickName());
-        assertThat(savedUser.getMName()).isEqualTo(userSignUpDto.getMName());
+        assertThat(savedUser.getName()).isEqualTo(userSignUpDto.getName());
         assertThat(savedUser.getAge()).isEqualTo(userSignUpDto.getAge());
         assertThat(savedUser.getRole()).isSameAs(Role.USER);
     }
@@ -196,9 +235,9 @@ public class UserServiceTest {
         em.clear();
 
         // then
-        userRepository.findByNickName(SecurityUtil.getLoginUserNickName()).ifPresent(
+        userRepository.findByEmail(securityUtil.getLoginUserEmail()).ifPresent(
                 user -> {
-                    assertThat(user.getMName()).isEqualTo(changeMName);
+                    assertThat(user.getName()).isEqualTo(changeMName);
                     assertThat(user.getNickName()).isEqualTo(userSignUpDto.getNickName());
                     assertThat(user.getAge()).isEqualTo(userSignUpDto.getAge());
                 }
@@ -221,9 +260,9 @@ public class UserServiceTest {
         em.clear();
 
         // then
-        userRepository.findByNickName(SecurityUtil.getLoginUserNickName()).ifPresent(
+        userRepository.findByEmail(securityUtil.getLoginUserEmail()).ifPresent(
                 user -> {
-                    assertThat(user.getMName()).isEqualTo(userSignUpDto.getMName());
+                    assertThat(user.getName()).isEqualTo(userSignUpDto.getName());
                     assertThat(user.getNickName()).isEqualTo(changeNickName);
                     assertThat(user.getAge()).isEqualTo(userSignUpDto.getAge());
                 }
@@ -246,9 +285,9 @@ public class UserServiceTest {
         em.clear();
 
         // then
-        userRepository.findByNickName(SecurityUtil.getLoginUserNickName()).ifPresent(
+        userRepository.findByEmail(securityUtil.getLoginUserEmail()).ifPresent(
                 user -> {
-                    assertThat(user.getMName()).isEqualTo(userSignUpDto.getMName());
+                    assertThat(user.getName()).isEqualTo(userSignUpDto.getName());
                     assertThat(user.getNickName()).isEqualTo(userSignUpDto.getNickName());
                     assertThat(user.getAge()).isEqualTo(changeAge);
                 }
@@ -272,9 +311,9 @@ public class UserServiceTest {
         em.clear();
 
         // then
-        userRepository.findByNickName(SecurityUtil.getLoginUserNickName()).ifPresent(
+        userRepository.findByEmail(securityUtil.getLoginUserEmail()).ifPresent(
                 user -> {
-                    assertThat(user.getMName()).isEqualTo(changeMName);
+                    assertThat(user.getName()).isEqualTo(changeMName);
                     assertThat(user.getNickName()).isEqualTo(changeNickName);
                     assertThat(user.getAge()).isEqualTo(userSignUpDto.getAge());
                 }
@@ -298,9 +337,9 @@ public class UserServiceTest {
         em.clear();
 
         // then
-        userRepository.findByNickName(SecurityUtil.getLoginUserNickName()).ifPresent(
+        userRepository.findByEmail(securityUtil.getLoginUserEmail()).ifPresent(
                 user -> {
-                    assertThat(user.getMName()).isEqualTo(userSignUpDto.getMName());
+                    assertThat(user.getName()).isEqualTo(userSignUpDto.getName());
                     assertThat(user.getNickName()).isEqualTo(changeNickName);
                     assertThat(user.getAge()).isEqualTo(changeAge);
                 }
@@ -324,9 +363,9 @@ public class UserServiceTest {
         em.clear();
 
         // then
-        userRepository.findByNickName(SecurityUtil.getLoginUserNickName()).ifPresent(
+        userRepository.findByEmail(securityUtil.getLoginUserEmail()).ifPresent(
                 user -> {
-                    assertThat(user.getMName()).isEqualTo(changeMName);
+                    assertThat(user.getName()).isEqualTo(changeMName);
                     assertThat(user.getNickName()).isEqualTo(userSignUpDto.getNickName());
                     assertThat(user.getAge()).isEqualTo(changeAge);
                 }
@@ -351,9 +390,9 @@ public class UserServiceTest {
         em.clear();
 
         // then
-        userRepository.findByNickName(SecurityUtil.getLoginUserNickName()).ifPresent(
+        userRepository.findByEmail(securityUtil.getLoginUserEmail()).ifPresent(
                 user -> {
-                    assertThat(user.getMName()).isEqualTo(changeMName);
+                    assertThat(user.getName()).isEqualTo(changeMName);
                     assertThat(user.getNickName()).isEqualTo(changeNickName);
                     assertThat(user.getAge()).isEqualTo(changeAge);
                 }
@@ -403,7 +442,7 @@ public class UserServiceTest {
 
         // then
         assertThat(userInfoDto.getEmail()).isEqualTo(userSignUpDto.getEmail());
-        assertThat(userInfoDto.getMName()).isEqualTo(userSignUpDto.getMName());
+        assertThat(userInfoDto.getName()).isEqualTo(userSignUpDto.getName());
         assertThat(userInfoDto.getAge()).isEqualTo(userSignUpDto.getAge());
         assertThat(userInfoDto.getNickName()).isEqualTo(userSignUpDto.getNickName());
     }
@@ -419,7 +458,7 @@ public class UserServiceTest {
 
         // then
         assertThat(userInfoDto.getEmail()).isEqualTo(userSignUpDto.getEmail());
-        assertThat(userInfoDto.getMName()).isEqualTo(userSignUpDto.getMName());
+        assertThat(userInfoDto.getName()).isEqualTo(userSignUpDto.getName());
         assertThat(userInfoDto.getAge()).isEqualTo(userSignUpDto.getAge());
         assertThat(userInfoDto.getNickName()).isEqualTo(userSignUpDto.getNickName());
     }

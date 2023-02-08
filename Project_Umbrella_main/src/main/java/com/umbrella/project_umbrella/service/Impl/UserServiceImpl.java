@@ -5,9 +5,10 @@ import com.umbrella.project_umbrella.dto.user.UserInfoDto;
 import com.umbrella.project_umbrella.dto.user.UserSignUpDto;
 import com.umbrella.project_umbrella.dto.user.UserUpdateDto;
 import com.umbrella.project_umbrella.repository.UserRepository;
-import com.umbrella.project_umbrella.security.login.utils.SecurityUtil;
+import com.umbrella.project_umbrella.security.utils.SecurityUtil;
 import com.umbrella.project_umbrella.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,21 +22,23 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final SecurityUtil securityUtil;
+
     private User userSignUpDtoToEntity(UserSignUpDto userSignUpDto) {
         User user = User.builder()
                 .email(userSignUpDto.getEmail())
                 .nickName(userSignUpDto.getNickName())
                 .password(userSignUpDto.getPassword())
-                .mName(userSignUpDto.getMName())
+                .name(userSignUpDto.getName())
                 .age(userSignUpDto.getAge())
                 .build();
 
         return user;
     }
 
-    private User getUserByNickName() {
-        return userRepository.findByNickName(SecurityUtil.getLoginUserNickName()).orElseThrow(
-                () -> new EntityNotFoundException("해당 닉네임을 가진 사용자가 존재하지 않습니다")
+    private User getUserByEmail() {
+        return userRepository.findByEmail(securityUtil.getLoginUserEmail()).orElseThrow(
+                () -> new EntityNotFoundException("해당 이메일을 가진 사용자가 존재하지 않습니다")
         );
     }
 
@@ -46,10 +49,9 @@ public class UserServiceImpl implements UserService {
         signUpUser.addUserAuthorities();
         signUpUser.encodePassword(passwordEncoder);
 
-        if (userRepository.findByEmail(userSignUpDto.getEmail()).isPresent()) {
-            throw new IllegalStateException("동일한 이메일을 사용하는 계정이 이미 존재합니다.");
-        }
-
+//        if (userRepository.findByEmail(userSignUpDto.getEmail()).isPresent()) {
+//            throw new IllegalStateException("동일한 이메일을 사용하는 계정이 이미 존재합니다.");
+//        }
         if (userRepository.findByNickName(userSignUpDto.getNickName()).isPresent()) {
             throw new IllegalStateException("동일한 닉네임을 사용하는 계정이 이미 존재합니다.");
         }
@@ -59,14 +61,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void update(UserUpdateDto userUpdateDto) {
-        User wantUpdateUser = getUserByNickName();
+        User wantUpdateUser = getUserByEmail();
 
         wantUpdateUser.updateUser(userUpdateDto);
     }
 
     @Override
     public void updatePassword(String checkPassword, String newPassword) {
-        User updatePasswordUser = getUserByNickName();
+        User updatePasswordUser = getUserByEmail();
 
         if (!updatePasswordUser.matchPassword(passwordEncoder, checkPassword)) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
@@ -77,8 +79,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void withdraw(String checkPassword) {
-        User withdrawUser = userRepository.findByNickName(SecurityUtil.getLoginUserNickName()).orElseThrow(
-                () -> new EntityNotFoundException("해당 닉네임을 사용하는 계정이 존재하지 않습니다.")
+        User withdrawUser = userRepository.findByEmail(securityUtil.getLoginUserEmail()).orElseThrow(
+                () -> new EntityNotFoundException("해당 이메일을 사용하는 계정이 존재하지 않습니다.")
         );
 
         if (!withdrawUser.matchPassword(passwordEncoder, checkPassword)) {
@@ -91,7 +93,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfoDto getInfo(Long id) {
         User findUser = userRepository.findById(id).orElseThrow(
-                () ->  new IllegalStateException("해당 정보를 가진 회원이 존재하지 않습니다.")
+                () ->  new IllegalArgumentException("해당 정보를 가진 회원이 존재하지 않습니다.")
         );
 
         return new UserInfoDto(findUser);
@@ -99,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfoDto getMyInfo() {
-        User findUser = getUserByNickName();
+        User findUser = getUserByEmail();
 
         return new UserInfoDto(findUser);
     }

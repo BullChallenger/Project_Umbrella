@@ -1,5 +1,6 @@
 package com.umbrella.project_umbrella.dto.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
@@ -13,20 +14,19 @@ import java.util.Optional;
 @Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserUpdateDto {
-    @NotBlank(message = "닉네임은 필수 입력 값입니다.")
+
     private Optional<String> nickName;
-    @NotBlank(message = "실명은 필수 입력 값입니다.")
-    private Optional<String> mName;
-    @NotNull(message = "나이는 필수 입력 값입니다.")
+
+    private Optional<String> name;
+
     private Optional<Integer> age;
 
     @Builder
     public UserUpdateDto(Optional<String> nickName,
-                         Optional<String> mName,
+                         Optional<String> name,
                          Optional<Integer> age) {
         this.nickName = nickName;
-        this.mName = mName;
+        this.name = name;
         this.age = age;
     }
-
 }

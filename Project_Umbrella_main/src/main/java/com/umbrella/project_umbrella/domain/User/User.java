@@ -30,7 +30,7 @@ public class User {
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
-    private String mName;
+    private String name;
     @Column(nullable = false)
     private int age;
     @Column
@@ -42,17 +42,17 @@ public class User {
     private String refreshToken;
 
     @Builder
-    public User(String email, String nickName, String password, String mName, Integer age, Role role) {
+    public User(Long id, String email, String nickName, String password, String name, Integer age, Role role) {
         Assert.hasText(email, "email must not be blank");
         Assert.hasText(nickName, "nickName must not be blank");
         Assert.hasText(password, "password must not be blank");
-        Assert.hasText(mName, "mName must not be blank");
+        Assert.hasText(name, "mName must not be blank");
         Assert.notNull(age, "age must not be null");
 
         this.email = email;
         this.nickName = nickName;
         this.password = password;
-        this.mName = mName;
+        this.name = name;
         this.age = age;
         this.role = role;
     }
@@ -74,8 +74,8 @@ public class User {
                 nickName -> this.nickName = nickName
         );
 
-        userUpdateDto.getMName().ifPresent(
-                mName -> this.mName = mName
+        userUpdateDto.getName().ifPresent(
+                mName -> this.name = mName
         );
 
         userUpdateDto.getAge().ifPresent(

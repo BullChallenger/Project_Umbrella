@@ -8,7 +8,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Getter
-public class UserLoginDto {
+public class UserRequestLoginDto {
 
     @NotBlank(message = "이메일은 필수 입력 값입니다.")
     @Email
@@ -17,7 +17,7 @@ public class UserLoginDto {
     private final String password;
 
     @Builder
-    public UserLoginDto(String email, String password) {
+    public UserRequestLoginDto(String email, String password) {
         Assert.hasText(email, "email must not be blank");
         Assert.hasText(password, "password must not be blank");
 

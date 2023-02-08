@@ -37,7 +37,7 @@ public class UserRepositoryTest {
         User user = User.builder()
                 .email("test@test.com")
                 .password("12345")
-                .mName("홍길동")
+                .name("홍길동")
                 .nickName("테스트 계정입니다")
                 .role(Role.USER)
                 .age(22)
@@ -65,47 +65,47 @@ public class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("[FAIL]_회원_저장_이메일_없음")
+    @DisplayName("[FAILED]_회원_저장_이메일_없음")
     public void saveUserException01() throws Exception {
         // given, when, then
         assertThrows(IllegalArgumentException.class, () -> User.builder()
                 .email(null)
                 .nickName("테스트 계정")
                 .password("1111")
-                .mName("홍길동")
+                .name("홍길동")
                 .age(22)
                 .role(Role.USER)
                 .build());
     }
 
     @Test
-    @DisplayName("[FAIL]_회원_저장_닉네임_없음")
+    @DisplayName("[FAILED]_회원_저장_닉네임_없음")
     public void saveUserException02() {
         // given, when, then
         assertThrows(IllegalArgumentException.class, () -> User.builder()
                 .email("test@test.com")
                 .password("1111")
-                .mName("홍길동")
+                .name("홍길동")
                 .age(22)
                 .role(Role.USER)
                 .build());
     }
 
     @Test
-    @DisplayName("[FAIL]_회원_저장_비밀번호_없음")
+    @DisplayName("[FAILED]_회원_저장_비밀번호_없음")
     public void saveUserException03() {
         // given, when, then
         assertThrows(IllegalArgumentException.class, () -> User.builder()
                 .email("test@test.com")
                 .nickName("테스트 계정")
-                .mName("홍길동")
+                .name("홍길동")
                 .age(22)
                 .role(Role.USER)
                 .build());
     }
 
     @Test
-    @DisplayName("[FAIL]_회원_저장_이름_없음")
+    @DisplayName("[FAILED]_회원_저장_이름_없음")
     public void saveUserException04() {
         // given, when, then
         assertThrows(IllegalArgumentException.class, () -> User.builder()
@@ -118,40 +118,40 @@ public class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("[FAIL]_회원_저장_나이_없음")
+    @DisplayName("[FAILED]_회원_저장_나이_없음")
     public void saveUserException05() {
         // given, when, then
         assertThrows(IllegalArgumentException.class, () -> User.builder()
                 .email("test@test.com")
                 .nickName("테스트 계정")
                 .password("1111")
-                .mName("홍길동")
+                .name("홍길동")
                 .role(Role.USER)
                 .build());
     }
 
     @Test
-    @DisplayName("[FAIL]_회원_저장_권한_없음")
+    @DisplayName("[FAILED]_회원_저장_권한_없음")
     public void saveUserException06() {
         // given, when, then
         assertThrows(IllegalArgumentException.class, () -> User.builder()
                 .email("test@test.com")
                 .nickName("테스트 계정")
                 .password("1111")
-                .mName("홍길동")
+                .name("홍길동")
                 .age(22)
                 .build());
     }
 
     @Test
-    @DisplayName("[FAIL]_회원_저장_중복된_이메일_존재")
+    @DisplayName("[FAILED]_회원_저장_중복된_이메일_존재")
     public void saveUserException07() {
         //given
         User member1 = User.builder()
                 .email("test@test01.com")
                 .nickName("테스트 계정1")
                 .password("1111")
-                .mName("홍길동")
+                .name("홍길동")
                 .age(22)
                 .role(Role.USER)
                 .build();
@@ -160,7 +160,7 @@ public class UserRepositoryTest {
                 .email("test@test01.com")
                 .nickName("테스트 계정2")
                 .password("1111")
-                .mName("임꺽정")
+                .name("임꺽정")
                 .age(22)
                 .role(Role.USER)
                 .build();
@@ -182,8 +182,6 @@ public class UserRepositoryTest {
         em.flush();
         em.clear();
 
-        Optional<String> opUpdatePassword = Optional.of("updatePassword");
-
         Optional<String> opUpdateName = Optional.of("updateName");
 
         Optional<String> opUpdateNickName = Optional.of("updateNickName");
@@ -192,7 +190,7 @@ public class UserRepositoryTest {
 
         UserUpdateDto userUpdateDto = UserUpdateDto.builder()
                 .nickName(opUpdateName)
-                .mName(opUpdateNickName)
+                .name(opUpdateNickName)
                 .age(opUpdateAge)
                 .build();
 
@@ -207,7 +205,7 @@ public class UserRepositoryTest {
                 orElseThrow(EntityNotFoundException::new);
 
         assertThat(findUpdatedUser.getNickName()).isEqualTo(userUpdateDto.getNickName().get());
-        assertThat(findUpdatedUser.getMName()).isEqualTo(userUpdateDto.getMName().get());
+        assertThat(findUpdatedUser.getName()).isEqualTo(userUpdateDto.getName().get());
         assertThat(findUpdatedUser.getAge()).isEqualTo(userUpdateDto.getAge().get());
     }
 

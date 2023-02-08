@@ -20,7 +20,6 @@ import javax.persistence.EntityNotFoundException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.security.Key;
 import java.util.*;
@@ -120,7 +119,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public Optional<String>  extractRefreshToken(HttpServletRequest request) throws IOException, ServletException {
+    public Optional<String> extractRefreshToken(HttpServletRequest request) throws IOException, ServletException {
         return Optional.ofNullable(request.getHeader(refreshHeader))
                 .filter(refreshToken -> refreshToken.startsWith(BEARER))
                 .map(refreshToken -> refreshToken.replace(BEARER, ""));

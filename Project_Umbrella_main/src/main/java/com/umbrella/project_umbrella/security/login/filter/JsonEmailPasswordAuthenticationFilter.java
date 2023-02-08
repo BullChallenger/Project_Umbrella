@@ -1,7 +1,7 @@
 package com.umbrella.project_umbrella.security.login.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.umbrella.project_umbrella.dto.user.UserLoginDto;
+import com.umbrella.project_umbrella.dto.user.UserRequestLoginDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -60,7 +60,7 @@ public class JsonEmailPasswordAuthenticationFilter extends AbstractAuthenticatio
 
         String messageBody = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
 
-        UserLoginDto userLoginDto = objectMapper.readValue(messageBody, UserLoginDto.class);
+        UserRequestLoginDto userLoginDto = objectMapper.readValue(messageBody, UserRequestLoginDto.class);
 
         String email = userLoginDto.getEmail();
         String password = userLoginDto.getPassword();

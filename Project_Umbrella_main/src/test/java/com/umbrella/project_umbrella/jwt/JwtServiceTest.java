@@ -3,6 +3,7 @@ package com.umbrella.project_umbrella.jwt;
 import com.umbrella.project_umbrella.constant.Role;
 import com.umbrella.project_umbrella.domain.User.User;
 import com.umbrella.project_umbrella.repository.UserRepository;
+import com.umbrella.project_umbrella.security.utils.SecurityUtil;
 import com.umbrella.project_umbrella.service.JwtService;
 import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +54,7 @@ public class JwtServiceTest {
         User user = User.builder()
                         .email(email)
                         .password(password)
-                        .mName("홍길동")
+                        .name("홍길동")
                         .nickName("테스트계정")
                         .age(22)
                         .role(Role.USER)
