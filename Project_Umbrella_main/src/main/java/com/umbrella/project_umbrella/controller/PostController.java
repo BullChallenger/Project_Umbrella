@@ -17,8 +17,9 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+
     @PostMapping("/post/save")
-    public Long save(@RequestBody PostSaveRequestDto requestDto){
+    public Long save(@RequestBody PostSaveRequestDto requestDto){ // 게시물 & 댓글 가져오기
         return postService.save(requestDto);
     }
 
@@ -38,4 +39,8 @@ public class PostController {
 
         return postService.delete(id);
     }
+
+    // 포스트 및 댓글 같이 가져오기
+
+
 }

@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
+
 public class Post {
 
     @Id
@@ -35,10 +36,17 @@ public class Post {
 
 
     @Builder
-    public Post(String writer, String title,  String content){
+    public Post(String writer, String title, String content, User user){
         this.writer = writer;
         this.content = content;
         this.title = title;
+        this.user = user;
+    }
+
+    //연관관계 메서드
+    public void setUser(User user){
+        this.user = user;
+        user.getPostList().add(this);
     }
 
     public void update(String title, String content){

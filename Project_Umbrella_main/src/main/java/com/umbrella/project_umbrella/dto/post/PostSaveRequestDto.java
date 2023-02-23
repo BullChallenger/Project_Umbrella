@@ -6,25 +6,26 @@ import lombok.Builder;
 
 public class PostSaveRequestDto {
 
-    private String writer;
 
     private String title;
 
     private String content;
 
+    private User user;
+
 
     @Builder
-    public PostSaveRequestDto(String writer, String title, String content){
-        this.writer = writer;
+    public PostSaveRequestDto( String writer, String title, String content, User user){
         this.title = title;
         this.content = content;
+        this.user = user;
     }
 
     public Post toEntity(){
         return Post.builder().
-                writer(writer).
                 title(title).
                 content(content).
+                user(user).
                 build();
     }
 

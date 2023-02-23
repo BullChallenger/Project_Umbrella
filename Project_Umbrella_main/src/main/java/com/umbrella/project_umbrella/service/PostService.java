@@ -1,8 +1,11 @@
 package com.umbrella.project_umbrella.service;
 
 
+import com.umbrella.project_umbrella.domain.Comment.Comment;
+import com.umbrella.project_umbrella.domain.Comment.CommentRepository;
 import com.umbrella.project_umbrella.domain.Post.Post;
 import com.umbrella.project_umbrella.domain.Post.PostRepository;
+import com.umbrella.project_umbrella.domain.User.UserRepository;
 import com.umbrella.project_umbrella.dto.post.PostListResponseDto;
 import com.umbrella.project_umbrella.dto.post.PostResponseDto;
 import com.umbrella.project_umbrella.dto.post.PostSaveRequestDto;
@@ -21,6 +24,8 @@ import java.util.stream.Collectors;
 
 public class PostService {
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
 
     // 저장 메서드
@@ -57,9 +62,13 @@ public class PostService {
 
     // 게시글 전체 리턴 메서드
     @Transactional(readOnly = true)
-    public List<PostListResponseDto> findAllDesc(){
+    public List<PostListResponseDto> findAllUser(){
+
         return postRepository.findAllDesc().stream()
                 .map(PostListResponseDto::new)
                 .collect(Collectors.toList());
     }
+
+
+
 }
